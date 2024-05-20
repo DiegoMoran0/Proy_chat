@@ -22,9 +22,10 @@ wsServer.on("request", (request) => {
     connections.push(connection);
 
     connection.on("message", (message) => {
-        console.log("Mensaje recibido: " + message.utf8Data);
+        const data = JSON.parse(message.utf8Data);
+        console.log(`Mensaje recibido de ${data.nombre}: ${data.texto}`);
         connections.forEach(conn => {
-            conn.sendUTF("Usuario: " + message.utf8Data);
+            conn.sendUTF(JSON.stringify(data));
         });
     });
 
@@ -40,4 +41,3 @@ wsServer.on("request", (request) => {
 server.listen(app.get("puerto"), () => {
     console.log("Servidor iniciado en el puerto: " + app.get("puerto"));
 });
-

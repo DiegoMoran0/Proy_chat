@@ -1,12 +1,16 @@
-// se encarga de enviar el texto
+let websocket;
+const userColors = {};
+
 function enviarTexto(event) {
     event.preventDefault();
     event.stopPropagation();
-    var campo = event.target.texto;
-
-    // limpia el campo de texto
-    doSend(campo.value);
-    campo.value = "";
+    const nombre = document.getElementById('nombre').value.trim();
+    const texto = document.getElementById('texto').value.trim();
+    if (nombre && texto) {
+        const mensaje = { nombre, texto };
+        doSend(JSON.stringify(mensaje));
+        document.getElementById('texto').value = "";
+    }
 }
 
 function init() {
@@ -18,35 +22,44 @@ function wsConnect() {
 
     websocket.onopen = function(evt) {
         onOpen(evt);
-    }
+    };
     websocket.onclose = function(evt) {
         onClose(evt);
-    }
+    };
     websocket.onmessage = function(evt) {
         onMessage(evt);
-    }
+    };
     websocket.onerror = function(evt) {
         onError(evt);
-    }
+    };
 }
 
 function onOpen(evt) {
     document.getElementById("enviar").disabled = false;
-    doSend("Saludos del cliente websocket");
 }
 
 function onClose(evt) {
     document.getElementById("enviar").disabled = true;
-    document.getElementById("mensajes").innerHTML = "";
+    document.getElementById("mensaje").value = "";
 
     setTimeout(function() {
         wsConnect();
     }, 2000);
 }
 
+function getColorForUser(nombre) {
+    if (!userColors[nombre]) {
+        userColors[nombre] = `hsl(${Math.random() * 360}, 100%, 75%)`;
+    }
+    return userColors[nombre];
+}
+
 function onMessage(evt) {
-    var area = document.getElementById("mensaje");
-    area.value += "\n" + evt.data;
+    const area = document.getElementById("mensaje");
+    const mensaje = JSON.parse(evt.data);
+    const color = getColorForUser(mensaje.nombre);
+    area.value += `${mensaje.nombre}: ${mensaje.texto}\n`;
+    area.innerHTML += `<span style="color:${color}">${mensaje.nombre}</span>: ${mensaje.texto}<br>`;
     area.scrollTop = area.scrollHeight; // Auto scroll to bottom
 }
 
