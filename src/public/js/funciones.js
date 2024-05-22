@@ -1,13 +1,13 @@
 let websocket;
-const userColors = {};
 
 function enviarTexto(event) {
     event.preventDefault();
     event.stopPropagation();
     const nombre = document.getElementById('nombre').value.trim();
+    const color = document.getElementById('color').value.trim();
     const texto = document.getElementById('texto').value.trim();
-    if (nombre && texto) {
-        const mensaje = { nombre, texto };
+    if (nombre && texto && color) {
+        const mensaje = { nombre, color, texto };
         doSend(JSON.stringify(mensaje));
         document.getElementById('texto').value = "";
     }
@@ -40,27 +40,20 @@ function onOpen(evt) {
 
 function onClose(evt) {
     document.getElementById("enviar").disabled = true;
-    document.getElementById("mensaje").value = "";
+    document.getElementById("mensajes").innerHTML = "";
 
     setTimeout(function() {
         wsConnect();
     }, 2000);
 }
 
-function getColorForUser(nombre) {
-    if (!userColors[nombre]) {
-        userColors[nombre] = `hsl(${Math.random() * 360}, 100%, 75%)`;
-    }
-    return userColors[nombre];
-}
-
 function onMessage(evt) {
-    const area = document.getElementById("mensaje");
+    const mensajes = document.getElementById("mensajes");
     const mensaje = JSON.parse(evt.data);
-    const color = getColorForUser(mensaje.nombre);
-    area.value += `${mensaje.nombre}: ${mensaje.texto}\n`;
-    area.innerHTML += `<span style="color:${color}">${mensaje.nombre}</span>: ${mensaje.texto}<br>`;
-    area.scrollTop = area.scrollHeight; // Auto scroll to bottom
+    const nuevoMensaje = document.createElement('div');
+    nuevoMensaje.innerHTML = `<span style="color:${mensaje.color}">${mensaje.nombre}</span>: ${mensaje.texto}`;
+    mensajes.appendChild(nuevoMensaje);
+    mensajes.scrollTop = mensajes.scrollHeight; // Auto scroll to bottom
 }
 
 function onError(evt) {

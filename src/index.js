@@ -23,7 +23,7 @@ wsServer.on("request", (request) => {
 
     connection.on("message", (message) => {
         const data = JSON.parse(message.utf8Data);
-        console.log(`Mensaje recibido de ${data.nombre}: ${data.texto}`);
+        console.log(`Mensaje recibido de ${data.nombre} (${data.color}): ${data.texto}`);
         connections.forEach(conn => {
             conn.sendUTF(JSON.stringify(data));
         });
